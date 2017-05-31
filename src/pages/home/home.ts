@@ -41,14 +41,14 @@ export class HomePage {
     }];
   }
 
-  ionViewDidEnter(){
+  ionViewDidEnter() {
     // get all tracks managed by AudioProvider so we can control playback via the API
     this.allTracks = this._audioProvider.tracks;
     console.log('ionViewDidEnter');
     this.addTrack();
   }
 
-  addTrack(track='recording_1496223333080.m4a') {
+  addTrack(track = 'recording_1496223333080.m4a') {
     this._file.resolveDirectoryUrl(this._file.dataDirectory)
       .then(dirEntry => {
         let fileEntry = dirEntry.toURL() + track;
@@ -61,21 +61,35 @@ export class HomePage {
           preload: 'metadata' // tell the plugin to preload metadata such as duration for this track,  set to 'none' to turn off
         })
       }, err => {
-        console.error('ERROR',err);
+        console.error('ERROR', err);
       })
       .catch(err => {
-        console.error('CATCH ERROR',err);
+        console.error('CATCH ERROR', err);
       })
   }
 
-  playSelectedTrack() {
+  playSelectedTrack(trackId) {
     // use AudioProvider to control selected track 
-    this._audioProvider.play(this.selectedTrack);
+      this._audioProvider.play(this.selectedTrack);
   }
 
   pauseSelectedTrack() {
     // use AudioProvider to control selected track 
     this._audioProvider.pause(this.selectedTrack);
+  }
+
+  togglePlay(audioTrack) {
+    if (audioTrack.isPlaying) {
+      audioTrack.pause()
+    } else {
+      //pause other playing video
+      if (this.selectedTrack !== audioTrack.id) {
+        this._audioProvider.pause();
+        this.selectedTrack = audioTrack.id;
+        audioTrack.play();
+      }
+      audioTrack.play()
+    }
   }
 
   onTrackFinished(track: any) {
@@ -91,9 +105,9 @@ export class HomePage {
   onRecord(data) {
     // let audio = new CordovaAudioTrack(data.dataDirectory + data.fileName);
     // this._audioProvider.add(audio);
-    
+
     console.log('OnRecord:data.fullpath', data.fullPath);
-    console.log('OnRecord:data',data);
+    console.log('OnRecord:data', data);
     this.addTrack(data.fileName);
 
     // this.myTracks.push({
